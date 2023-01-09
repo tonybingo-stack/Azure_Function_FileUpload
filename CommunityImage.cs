@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Azure.Storage.Blobs;
 using System.Net;
+using Azure.Storage.Blobs.Models;
 
 namespace FileUploadFunction
 {
@@ -26,8 +27,12 @@ namespace FileUploadFunction
             myBlob = file.OpenReadStream();
             var blobClient = new BlobContainerClient(Connection, containerName);
             var blob = blobClient.GetBlobClient(Guid.NewGuid().ToString());
-            await blob.UploadAsync(myBlob);
 
+            var blobHttpHeader = new BlobHttpHeaders();
+            blobHttpHeader.ContentType = "image/jpeg";
+            var o = new BlobUploadOptions();
+            o.HttpHeaders = blobHttpHeader;
+            await blob.UploadAsync(myBlob, o);
 
             return new OkObjectResult(blob.Uri.AbsoluteUri);
 
